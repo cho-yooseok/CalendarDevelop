@@ -1,14 +1,13 @@
 package com.example.CalendarDevelop.cys.repository;
 
 import com.example.CalendarDevelop.cys.entity.Member;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface MemberRepository {
-    Member save(Member member);
+@Repository
+public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmailAndPassword(String email, String password);
-    Optional<Member> findById(Long id);
-    boolean existByEmail(String email);
-    Member update(Long id, Member member);
-    void deleteById(Long id);
+    boolean existsByEmail(String email);
 }

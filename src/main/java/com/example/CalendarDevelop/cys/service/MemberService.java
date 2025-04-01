@@ -20,7 +20,7 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto save(MemberSaveRequestDto requestDto) {
-        if (memberRepository.existByEmail(requestDto.getEmail())) {
+        if (memberRepository.existsByEmail(requestDto.getEmail())) {
             throw new ApplicationException("이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST);
         }
 
@@ -58,21 +58,21 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto update(Long id, MemberUpdateRequestDto requestDto) {
-
         Member member = memberRepository.findById(id).orElseThrow(
                 () -> new ApplicationException("해당 id의 회원이 존재하지 않습니다.", HttpStatus.NOT_FOUND)
         );
 
         member.update(requestDto.getName(), requestDto.getPassword());
 
-        Member updatedMember = memberRepository.update(id, member);
+        // With JPA, we don't need to explicitly call save for updates
+        // The entity is managed and changes will be persisted automatically
 
         return new MemberResponseDto(
-                updatedMember.getId(),
-                updatedMember.getName(),
-                updatedMember.getEmail(),
-                updatedMember.getCreatedAt(),
-                updatedMember.getUpdatedAt()
+                member.getId(),
+                member.getName(),
+                member.getEmail(),
+                member.getCreatedAt(),
+                member.getUpdatedAt()
         );
     }
 
