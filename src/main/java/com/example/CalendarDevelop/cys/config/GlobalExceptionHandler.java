@@ -14,19 +14,41 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 글로벌 예외 처리 클래스
+ * 애플리케이션 전체에서 발생하는 예외를 일관된 방식으로 처리하는 클래스
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * ApplicationException 처리 메서드
+     * 애플리케이션에서 정의한 예외 처리
+     * @param ex 발생한 ApplicationException
+     * @return 에러 응답
+     */
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<Map<String, Object>> handleApplicationException(ApplicationException ex) {
         return getErrorResponse(ex.getStatus(), ex.getMessage());
     }
 
+    /**
+     * AuthenticationException 처리 메서드
+     * 인증 관련 예외 처리
+     * @param ex 발생한 AuthenticationException
+     * @return 에러 응답
+     */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
         return getErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    /**
+     * 유효성 검사 실패 예외 처리 메서드
+     * @Valid 어노테이션으로 검증 실패 시 발생하는 예외 처리
+     * @param ex 발생한 MethodArgumentNotValidException
+     * @return 에러 응답 (필드별 에러 메시지가 포함된 응답)
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
@@ -37,7 +59,7 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", "잘못된 입력값입니다");
         errorResponse.put("path", "/api/login");
 
-        // Field errors
+        // 필드별 에러 메시지 수집
         var fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -54,6 +76,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * 에러 응답 생성 유틸리티 메서드
+     * 공통 에러 응답 형식을 생성
+     * @param status HTTP 상태 코드
+     * @param message 에러 메시지
+     * @return 에러 응답
+     */
     private ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", status.name());
